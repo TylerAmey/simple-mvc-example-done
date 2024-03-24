@@ -90,6 +90,52 @@ const hostPage1 = async (req, res) => {
   }
 };
 
+const hostPage4 = async (req, res) => {
+  /* Remember that our database is an entirely separate server from our node
+     code. That means all interactions with it are async, and just because our
+     server is up doesn't mean our database is. Therefore, any time we
+     interact with it, we need to account for scenarios where it is not working.
+     That is why the code below is wrapped in a try/catch statement.
+  */
+  try {
+    /* We want to find all the cats in the Cat database. To do this, we need
+       to make a "query" or a search. Queries in Mongoose are "thenable" which
+       means they work like promises. Since they work like promises, we can also
+       use await/async with them.
+
+       The result of any query will either throw an error, or return zero, one, or
+       multiple "documents". Documents are what our database stores. It is often
+       abbreviated to "doc" or "docs" (one or multiple).
+
+       .find() is a function in all Mongoose models (like our Cat model). It takes
+       in an object as a parameter that defines the search. In this case, we want
+       to find every cat, so we give it an empty object because that will not filter
+       out any cats.
+
+       .lean() is a modifier for the find query. Instead of returning entire mongoose
+       documents, .lean() will only return the JS Objects being stored. Try printing
+       out docs with and without .lean() to see the difference.
+
+       .exec() executes the chain of operations. It is not strictly necessary and
+       can be removed. However, mongoose gives better error messages if we use it.
+    */
+    const docs = await Dog.find({}).lean().exec();
+
+    // Once we get back the docs array, we can send it to page1.
+    return res.render('page4', { dogs: docs });
+  } catch (err) {
+    /* If our database returns an error, or is unresponsive, we will print that error to
+       our console for us to see. We will also send back an error message to the client.
+
+       We don't want to send back the err from mongoose, as that would be unsafe. You
+       do not want people to see actual error messages from your server or database, or else
+       they can exploit them to attack your server.
+    */
+    console.log(err);
+    return res.status(500).json({ error: 'failed to find dogs' });
+  }
+};
+
 // Function to render the untemplated page2.
 const hostPage2 = (req, res) => {
   res.render('page2');
@@ -424,6 +470,7 @@ module.exports = {
   page1: hostPage1,
   page2: hostPage2,
   page3: hostPage3,
+  page4: hostPage4,
   getName,
   getNameDog,
   setName,
