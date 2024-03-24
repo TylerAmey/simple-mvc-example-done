@@ -409,7 +409,7 @@ const searchNameDog = async (req, res) => {
 
   // Otherwise, we got a result and will send it back to the user.
   // Increase age as of step 4
-  doc.age += 1
+  doc.age += 1;
   return res.json({ name: doc.name, breed: doc.breed, age: doc.age });
 };
 
